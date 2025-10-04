@@ -1,18 +1,54 @@
 import { Database, Class } from '@/lib/db';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Users, Plus } from 'lucide-react';
+import { BookOpen, Users, Plus, Trash2 } from 'lucide-react';
 import { getStudentsInClass, calculateClassAverage } from '@/lib/grades';
+import { toast } from 'sonner';
+import { saveDB } from '@/lib/db';
 
 interface TeacherDashboardProps {
   db: Database;
   onOpenClass: (classId: string) => void;
   onCreateClass: () => void;
+  onDeleteClass?: (classId: string) => void;
 }
 
-export function TeacherDashboard({ db, onOpenClass, onCreateClass }: TeacherDashboardProps) {
+export function TeacherDashboard({ db, onOpenClass, onCreateClass, onDeleteClass }: TeacherDashboardProps) {
   const teacher = db.profiles.find(p => p.id === db.session.userId);
   const classes = db.classes.filter(c => c.teacherId === db.session.userId);
+
+  const handleDeleteClass = (classId: string, className: string) => {
+    if (!confirm(`Are you sure you want to delete "${className}"? This will remove all students, assignments, and grades associated with this class.`)) {
+      return;
+    }
+
+    // Remove class
+    db.classes = db.classes.filter(c => c.id !== classId);
+    
+    // Remove enrollments
+    db.enrollments = db.enrollments.filter(e => e.classId !== classId);
+    
+    // Remove categories
+    const categoryIds = db.categories.filter(c => c.classId === classId).map(c => c.id);
+    db.categories = db.categories.filter(c => c.classId !== classId);
+    
+    // Remove assignments
+    const assignmentIds = db.assignments.filter(a => a.classId === classId).map(a => a.id);
+    db.assignments = db.assignments.filter(a => a.classId !== classId);
+    
+    // Remove grades
+    db.grades = db.grades.filter(g => !assignmentIds.includes(g.assignmentId));
+    
+    // Remove attendance
+    db.attendance = db.attendance.filter(a => a.classId !== classId);
+    
+    // Remove study materials
+    db.studyMaterials = db.studyMaterials.filter(s => s.classId !== classId);
+    
+    saveDB(db);
+    if (onDeleteClass) onDeleteClass(classId);
+    toast.success('Class deleted successfully');
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/5">
@@ -59,9 +95,21 @@ export function TeacherDashboard({ db, onOpenClass, onCreateClass }: TeacherDash
                       Avg: {average !== null ? `${average.toFixed(1)}%` : '-'}
                     </div>
                   </div>
-                  <Button onClick={() => onOpenClass(cls.id)} className="w-full">
-                    Open Class
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button onClick={() => onOpenClass(cls.id)} className="flex-1">
+                      Open Class
+                    </Button>
+                    <Button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteClass(cls.id, cls.name);
+                      }} 
+                      variant="destructive" 
+                      size="icon"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             );

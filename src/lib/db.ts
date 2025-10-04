@@ -42,6 +42,23 @@ export interface Grade {
   score: number | null;
 }
 
+export interface Attendance {
+  id: string;
+  classId: string;
+  studentId: string;
+  date: string;
+  status: 'present' | 'absent' | 'late' | 'excused';
+}
+
+export interface StudyMaterial {
+  id: string;
+  classId: string;
+  title: string;
+  description: string;
+  url: string;
+  uploadDate: string;
+}
+
 export interface Session {
   userId: string | null;
 }
@@ -53,6 +70,8 @@ export interface Database {
   categories: Category[];
   assignments: Assignment[];
   grades: Grade[];
+  attendance: Attendance[];
+  studyMaterials: StudyMaterial[];
   session: Session;
 }
 
@@ -124,6 +143,8 @@ export function createBlankDB(): Database {
       { id: 'grade11', assignmentId: assignmentIds[4], studentId: studentIds[0], score: 50 },
       { id: 'grade12', assignmentId: assignmentIds[5], studentId: studentIds[0], score: 180 },
     ],
+    attendance: [],
+    studyMaterials: [],
     session: { userId: null },
   };
 

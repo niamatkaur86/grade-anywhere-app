@@ -47,6 +47,13 @@ const Index = () => {
     setDb(updatedDb);
   };
 
+  const handleDeleteClass = (classId: string) => {
+    if (currentClassId === classId) {
+      setCurrentClassId(null);
+    }
+    setDb({ ...db });
+  };
+
   if (!db.session.userId) {
     return <Login db={db} onLogin={handleLogin} />;
   }
@@ -76,6 +83,7 @@ const Index = () => {
           db={db}
           onOpenClass={setCurrentClassId}
           onCreateClass={handleCreateClass}
+          onDeleteClass={handleDeleteClass}
         />
       ) : (
         <StudentDashboard

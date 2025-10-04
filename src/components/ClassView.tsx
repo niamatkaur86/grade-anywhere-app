@@ -8,6 +8,9 @@ import { StudentsTab } from './class-tabs/StudentsTab';
 import { AssignmentsTab } from './class-tabs/AssignmentsTab';
 import { GradebookTab } from './class-tabs/GradebookTab';
 import { WeightsTab } from './class-tabs/WeightsTab';
+import { AttendanceTab } from './class-tabs/AttendanceTab';
+import { MaterialsTab } from './class-tabs/MaterialsTab';
+import { GradeEstimatorTab } from './class-tabs/GradeEstimatorTab';
 import { SettingsTab } from './class-tabs/SettingsTab';
 
 interface ClassViewProps {
@@ -41,12 +44,14 @@ export function ClassView({ db, classId, onBack, onUpdate }: ClassViewProps) {
 
         {isTeacher ? (
           <Tabs defaultValue="overview" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-6">
+            <TabsList className="grid w-full grid-cols-8">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="students">Students</TabsTrigger>
               <TabsTrigger value="assignments">Assignments</TabsTrigger>
               <TabsTrigger value="gradebook">Gradebook</TabsTrigger>
               <TabsTrigger value="weights">Weights</TabsTrigger>
+              <TabsTrigger value="attendance">Attendance</TabsTrigger>
+              <TabsTrigger value="materials">Materials</TabsTrigger>
               <TabsTrigger value="settings">Settings</TabsTrigger>
             </TabsList>
             
@@ -70,15 +75,25 @@ export function ClassView({ db, classId, onBack, onUpdate }: ClassViewProps) {
               <WeightsTab db={db} classId={classId} onUpdate={onUpdate} />
             </TabsContent>
             
+            <TabsContent value="attendance">
+              <AttendanceTab db={db} classId={classId} onUpdate={onUpdate} />
+            </TabsContent>
+            
+            <TabsContent value="materials">
+              <MaterialsTab db={db} classId={classId} onUpdate={onUpdate} />
+            </TabsContent>
+            
             <TabsContent value="settings">
               <SettingsTab db={db} classId={classId} onUpdate={onUpdate} onBack={onBack} />
             </TabsContent>
           </Tabs>
         ) : (
           <Tabs defaultValue="grades" className="space-y-6">
-            <TabsList>
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="grades">My Grades</TabsTrigger>
               <TabsTrigger value="assignments">Assignments</TabsTrigger>
+              <TabsTrigger value="estimator">Grade Estimator</TabsTrigger>
+              <TabsTrigger value="materials">Materials</TabsTrigger>
               <TabsTrigger value="info">Class Info</TabsTrigger>
             </TabsList>
             
@@ -88,6 +103,14 @@ export function ClassView({ db, classId, onBack, onUpdate }: ClassViewProps) {
             
             <TabsContent value="assignments">
               <AssignmentsTab db={db} classId={classId} onUpdate={onUpdate} />
+            </TabsContent>
+            
+            <TabsContent value="estimator">
+              <GradeEstimatorTab db={db} classId={classId} />
+            </TabsContent>
+            
+            <TabsContent value="materials">
+              <MaterialsTab db={db} classId={classId} onUpdate={onUpdate} />
             </TabsContent>
             
             <TabsContent value="info">
