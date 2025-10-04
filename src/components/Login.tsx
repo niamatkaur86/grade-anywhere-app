@@ -13,45 +13,18 @@ interface LoginProps {
 }
 
 export function Login({ db, onLogin }: LoginProps) {
-  const [isSignup, setIsSignup] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
-  const [role, setRole] = useState<'teacher' | 'student'>('student');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (isSignup) {
-      // Check if user already exists
-      const existing = db.profiles.find(p => p.email === email);
-      if (existing) {
-        toast.error('Account with this email already exists');
-        return;
-      }
-
-      // Create new account
-      const newUser = {
-        id: `user_${Date.now()}_${Math.random()}`,
-        email,
-        password,
-        name,
-        role,
-      };
-
-      db.profiles.push(newUser);
-      import('@/lib/db').then(({ saveDB }) => saveDB(db));
-      onLogin(newUser.id);
-      toast.success(`Account created! Welcome, ${name}!`);
+    const user = db.profiles.find(p => p.email === email && p.password === password);
+    
+    if (user) {
+      onLogin(user.id);
+      toast.success(`Welcome back, ${user.name}!`);
     } else {
-      const user = db.profiles.find(p => p.email === email && p.password === password);
-      
-      if (user) {
-        onLogin(user.id);
-        toast.success(`Welcome back, ${user.name}!`);
-      } else {
-        toast.error('Invalid email or password');
-      }
+      toast.error('Invalid email or password');
     }
   };
 
@@ -65,38 +38,10 @@ export function Login({ db, onLogin }: LoginProps) {
             </div>
           </div>
           <CardTitle className="text-3xl font-bold">Gradebook</CardTitle>
-          <CardDescription>{isSignup ? 'Create a new account' : 'Sign in to your account'}</CardDescription>
+          <CardDescription>Sign in to your account</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            {isSignup && (
-              <>
-                <div className="space-y-2">
-                  <Label htmlFor="name">Full Name</Label>
-                  <Input
-                    id="name"
-                    type="text"
-                    placeholder="John Doe"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="role">Account Type</Label>
-                  <select
-                    id="role"
-                    value={role}
-                    onChange={(e) => setRole(e.target.value as 'teacher' | 'student')}
-                    className="w-full px-3 py-2 border rounded-md"
-                    required
-                  >
-                    <option value="student">Student</option>
-                    <option value="teacher">Teacher</option>
-                  </select>
-                </div>
-              </>
-            )}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -120,19 +65,7 @@ export function Login({ db, onLogin }: LoginProps) {
               />
             </div>
             <Button type="submit" className="w-full">
-              {isSignup ? 'Create Account' : 'Sign In'}
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              className="w-full"
-              onClick={() => {
-                setIsSignup(!isSignup);
-                setName('');
-                setRole('student');
-              }}
-            >
-              {isSignup ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
+              Sign In
             </Button>
           </form>
           <div className="mt-6 pt-6 border-t space-y-3">
